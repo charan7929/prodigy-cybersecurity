@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Password Strength Checker</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(to right, #667eea, #764ba2);
+        color: #333;
+        padding: 2rem;
+      }
+      .container {
+        max-width: 420px;
+        margin: auto;
+        background: #fff;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      }
+      h2 {
+        text-align: center;
+        color: #444;
+        margin-bottom: 1rem;
+      }
+      input[type="text"],
+      input[type="password"] {
+        width: 100%;
+        padding: 12px;
+        font-size: 1rem;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        margin-top: 10px;
+        box-sizing: border-box;
+        transition: border 0.3s;
+      }
+      input[type="text"]:focus,
+      input[type="password"]:focus {
+        border-color: #667eea;
+        outline: none;
+      }
+      .toggle-password {
+        margin-top: 10px;
+        font-size: 0.9rem;
+      }
+      .feedback {
+        margin-top: 15px;
+        font-weight: bold;
+        padding: 10px;
+        border-radius: 8px;
+      }
+      .strength-weak {
+        background-color: #ffe5e5;
+        color: #d10000;
+      }
+      .strength-medium {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+      .strength-strong {
+        background-color: #d4edda;
+        color: #155724;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>🔐 Password Strength Checker</h2>
+      <input
+        type="text"
+        id="username"
+        placeholder="Enter your name  (optional)"
+      />
+      <input type="password" id="password" placeholder="Enter your password" />
+      <label class="toggle-password">
+        <input type="checkbox" id="togglePassword" /> Show Password
+      </label>
+      <div class="feedback" id="feedback"></div>
+    </div>
+    <script>
+      const passwordInput = document.getElementById("password");
+      const usernameInput = document.getElementById("username");
+      const togglePassword = document.getElementById("togglePassword");
+      const feedback = document.getElementById("feedback");
+      const commonPasswords = [
+        "password",
+        "123456",
+        "123456789",
+        "qwerty",
+        "12345678",
+        "111111",
+        "123123",
+        "abc123",
+        "password1",
+        "iloveyou",
+        "admin",
+        "welcome",
+        "monkey",
+        "login",
+        "letmein",
+        "dragon",
+        "abc123",
+        "welcome",
+        "000000",
+        "qwertyuiop",
+        "asdfghjkl",
+        "zxcvbnm",
+        "1q2w3e4r",
+        "qwe123",
+        "qazwsx",
+        "wasd123",
+      ];
+      togglePassword.addEventListener("change", () => {
+        passwordInput.type = togglePassword.checked ? "text" : "password";
+      });
+      function checkPasswordStrength(password, username = "") {
+        let score = 0;
+        const hasUpper = /[A-Z]/.test(password);
+        const hasLower = /[a-z]/.test(password);
+        const hasNumber = /\d/.test(password);
+        const hasSymbol = /[^A-Za-z0-9]/.test(password);
+        const isLong = password.length >= 8;
+        const isCommon = commonPasswords.includes(password.toLowerCase());
+        const includesName =
+          username && password.toLowerCase().includes(username.toLowerCase());
+        const isPatterned =
+          /(1234|abcd|qwerty|1111|0000|aaaa)/i.test(password) ||
+          /(.)\1{2,}/.test(password);
+        if (isCommon || includesName || isPatterned) score = 0;
+        if (hasUpper) score++;
+        if (hasLower) score++;
+        if (hasNumber) score++;
+        if (hasSymbol) score++;
+        if (isLong) score++;
+        let level = "weak";
+        let message = "Weak password.";
+        if (score >= 5) {
+          level = "strong";
+          message = "✅ Strong password.";
+        } else if (score >= 3) {
+          level = "medium";
+          message =
+            "⚠️ Moderate password. Try mixing upper/lowercase, numbers, and symbols.";
+        }
+        if (isCommon)
+          message =
+            "❌ This is a common password. Choose something more secure.";
+        if (includesName)
+          message = "❌ Password should not include your name or email.";
+        if (isPatterned)
+          message = "❌ Avoid predictable patterns or repeated characters.";
+        return { level, message };
+      }
+      function updateFeedback() {
+        const password = passwordInput.value.trim();
+        const username = usernameInput.value.trim();
+        const result = checkPasswordStrength(password, username);
+        feedback.textContent = result.message;
+        feedback.className = `feedback strength-${result.level}`;
+      }
+      passwordInput.addEventListener("input", updateFeedback);
+      usernameInput.addEventListener("input", updateFeedback);
+    </script>
+  </body>
+</html>
